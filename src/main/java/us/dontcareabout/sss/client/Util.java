@@ -15,6 +15,15 @@ public class Util {
 	}
 
 	/**
+	 * @param isUp 是不是上學期
+	 * @return 「X 年度第 Y 學期」的字串，格式為「X-Z」（上學期 Z=1、下學期 Z=2）
+	 * 	對應 Google Sheet 的學期字串
+	 */
+	public static String semester(int year, boolean isUp) {
+		return year + "-" + (isUp ? 1 : 2);
+	}
+
+	/**
 	 * 將字串複製到系統剪貼簿中
 	 */
 	public static native void copy(String text) /*-{
