@@ -1,9 +1,15 @@
 package us.dontcareabout.sss.client;
 
+import com.google.gwt.i18n.client.DateTimeFormat;
+
+import us.dontcareabout.sss.client.vo.WeekSchedule;
+
 public class Util {
 	//XXX 遙遠的未來應該抽出去變成 host page 提供？
 	public static final int MAX_GRADE = 3;
 	public static final int MAX_SERIAL = 4;
+
+	public static final DateTimeFormat MMdd = DateTimeFormat.getFormat("MM/dd");
 
 	/**
 	 * @param grade 年級
@@ -21,6 +27,22 @@ public class Util {
 	 */
 	public static String semester(int year, boolean isUp) {
 		return year + "-" + (isUp ? 1 : 2);
+	}
+
+	public static String toString(WeekSchedule data) {
+		StringBuilder result = new StringBuilder(MMdd.format(data.getDate()) + "\n");
+
+		for (int g = 1; g <= Util.MAX_GRADE; g++) {
+			for (int s = 1; s <= Util.MAX_SERIAL; s++) {
+				String className = Util.className(g, s);
+				result.append(className + " " + data.getHost(g, s) + " : ");
+				result.append("\n");
+			}
+
+			result.append("\n");
+		}
+
+		return result.substring(0, result.length() - 1);
 	}
 
 	/**
