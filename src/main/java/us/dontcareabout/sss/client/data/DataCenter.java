@@ -3,6 +3,8 @@ package us.dontcareabout.sss.client.data;
 import java.util.HashMap;
 import java.util.List;
 
+import com.github.nmorel.gwtjackson.client.ObjectMapper;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 
@@ -13,10 +15,13 @@ import us.dontcareabout.gwt.client.google.sheet.SheetDto.Callback;
 import us.dontcareabout.sss.client.Util;
 import us.dontcareabout.sss.client.data.event.ScheduleReadyEvent;
 import us.dontcareabout.sss.client.data.event.ScheduleReadyEvent.ScheduleReadyHandler;
+import us.dontcareabout.sss.client.gf.StorageDao;
+import us.dontcareabout.sss.client.vo.UserData;
 import us.dontcareabout.sss.client.vo.WeekSchedule;
 
 public class DataCenter {
 	private final static SimpleEventBus eventBus = new SimpleEventBus();
+	private final static StorageDao<UserData> userDataDao = new StorageDao<>("SSS-UserData", GWT.create(UserDataMapper.class));
 
 	private static void loadError() {
 		//TODO
@@ -25,6 +30,7 @@ public class DataCenter {
 	////////////////
 
 	// ==== 原始資料區 ==== //
+	private static UserData userData;
 	public static List<WeekSchedule> weekScheduleList;
 	// ======== //
 
@@ -32,6 +38,24 @@ public class DataCenter {
 	/** 志工狀態（目前只有進班次數） */
 	public static HashMap<String, Integer> volunteerMap;	//TODO int 換成 VolunteerDetail
 	// ======== //
+
+	public static UserData getUserData() {
+		if (userData == null) {
+			userData = userDataDao.retrieve();
+		}
+
+		if (userData == null) {
+			userData = new UserData();
+			userData.setName("靜玉");	//XXX magic number
+			userDataDao.store(userData);
+		}
+
+		return userData;
+	}
+
+	public static void saveUserData() {
+		userDataDao.store(userData);
+	}
 
 	public static void wantSchedule(String sheetId, int year, boolean isUp) {
 		new SheetDto<WeekSchedule>().key(ApiKey.jsValue())
@@ -78,4 +102,6 @@ public class DataCenter {
 			}
 		}
 	}
+
+	interface UserDataMapper extends ObjectMapper<UserData> {}
 }
