@@ -16,7 +16,9 @@ import us.dontcareabout.sss.client.Util;
 import us.dontcareabout.sss.client.data.event.ScheduleReadyEvent;
 import us.dontcareabout.sss.client.data.event.ScheduleReadyEvent.ScheduleReadyHandler;
 import us.dontcareabout.sss.client.gf.StorageDao;
+import us.dontcareabout.sss.client.vo.Assignment;
 import us.dontcareabout.sss.client.vo.UserData;
+import us.dontcareabout.sss.client.vo.Volunteer;
 import us.dontcareabout.sss.client.vo.WeekSchedule;
 
 public class DataCenter {
@@ -35,8 +37,8 @@ public class DataCenter {
 	// ======== //
 
 	// ==== 二級資料區 ==== //
-	/** 志工狀態（目前只有進班次數） */
-	public static HashMap<String, Integer> volunteerMap;	//TODO int 換成 VolunteerDetail
+	/** 志工狀態 */
+	public static HashMap<String, Volunteer> volunteerMap;
 	// ======== //
 
 	public static UserData getUserData() {
@@ -92,12 +94,14 @@ public class DataCenter {
 
 					if(name.isEmpty()) { continue; }
 
-					Integer count = volunteerMap.get(name);
-					if (count == null) {
-						volunteerMap.put(name, 1);
-					} else {
-						volunteerMap.put(name, count + 1);
+					Volunteer v = volunteerMap.get(name);
+
+					if (v == null) {
+						v = new Volunteer(name);
+						volunteerMap.put(name, v);
 					}
+
+					v.assignmentList.add(new Assignment(g, s, ws.getDate()));
 				}
 			}
 		}
