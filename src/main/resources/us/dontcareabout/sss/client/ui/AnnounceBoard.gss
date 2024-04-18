@@ -1,0 +1,15 @@
+.title {
+	font-size: 18px;
+	margin: 5px;
+}
+
+.normal {
+	font-size: 18px;
+	margin: 10px 0 0 30px;
+	line-height: 1.4;
+}
+
+.name {
+	border-bottom: 2px solid;
+	font-size: 22px;
+}
