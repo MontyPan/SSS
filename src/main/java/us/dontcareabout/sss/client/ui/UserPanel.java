@@ -42,6 +42,7 @@ public class UserPanel extends LayerContainer {
 			DataCenter.saveUserData();
 			confirmBlock.setHidden(true);
 			nameBlock.refresh();
+			UiCenter.showAnnounce();
 		});
 
 		reportBlock.addSpriteSelectionHandler(e -> Util.openUrl(Util.REPORT_URL));

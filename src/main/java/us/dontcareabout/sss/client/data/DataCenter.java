@@ -16,6 +16,7 @@ import us.dontcareabout.sss.client.Util;
 import us.dontcareabout.sss.client.data.event.ScheduleReadyEvent;
 import us.dontcareabout.sss.client.data.event.ScheduleReadyEvent.ScheduleReadyHandler;
 import us.dontcareabout.sss.client.gf.StorageDao;
+import us.dontcareabout.sss.client.ui.UiCenter;
 import us.dontcareabout.sss.client.vo.Assignment;
 import us.dontcareabout.sss.client.vo.UserData;
 import us.dontcareabout.sss.client.vo.Volunteer;
@@ -69,6 +70,7 @@ public class DataCenter {
 					weekScheduleList = gs.getRows();
 					buildVolunteerMap();
 					eventBus.fireEvent(new ScheduleReadyEvent());
+					UiCenter.showAnnounce();
 				}
 
 				@Override
