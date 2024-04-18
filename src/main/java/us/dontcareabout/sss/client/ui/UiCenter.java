@@ -1,13 +1,22 @@
 package us.dontcareabout.sss.client.ui;
 
+import java.util.Date;
+
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 
+import us.dontcareabout.gxt.client.util.PopUtil;
+import us.dontcareabout.sss.client.Util;
+import us.dontcareabout.sss.client.data.DataCenter;
 import us.dontcareabout.sss.client.ui.event.ChangeNameEvent;
 import us.dontcareabout.sss.client.ui.event.ChangeNameEvent.ChangeNameHandler;
+import us.dontcareabout.sss.client.vo.Assignment;
+import us.dontcareabout.sss.client.vo.Volunteer;
 
 public class UiCenter {
 	private final static SimpleEventBus eventBus = new SimpleEventBus();
+
+	private static AnnounceBoard announcePad = new AnnounceBoard();
 
 	public static void changeName(String name) {
 		eventBus.fireEvent(new ChangeNameEvent(name));
@@ -15,5 +24,22 @@ public class UiCenter {
 
 	public static HandlerRegistration addChangeName(ChangeNameHandler handler) {
 		return eventBus.addHandler(ChangeNameEvent.TYPE, handler);
+	}
+
+	public static void showAnnounce() {
+		String name = DataCenter.getUserData().getName();
+		Volunteer v = DataCenter.volunteerMap.get(name);
+		Date now = new Date();
+		for (Assignment t : v.assignmentList) {
+			if (now.before(t.date)) {
+				announcePad.refresh(
+					name,
+					t.date,
+					Util.className(t.grade, t.serial)
+				);
+				PopUtil.showDialog(announcePad);
+				return;
+			}
+		}
 	}
 }
