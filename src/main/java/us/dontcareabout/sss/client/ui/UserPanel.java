@@ -26,11 +26,10 @@ public class UserPanel extends LayerContainer {
 	private static final int iconSize = 80;
 
 	private UserData userData = DataCenter.getUserData();
-	private String newName;
 
 	private HorizontalLayoutLayer root = new HorizontalLayoutLayer();
 	private NameBlock nameBlock = new NameBlock();
-	private ImgBlock confirmBlock = new ImgBlock(ImageRS.I.personCheck());
+	private ImgBlock searchBlock = new ImgBlock(ImageRS.I.search());
 	private TextIconBlock reportBlock = new TextIconBlock("進班回報", ImageRS.I.calendarCheck());
 	private TextIconBlock volunteerBlock = new TextIconBlock("志工時數", ImageRS.I.pencilSquare());
 
@@ -40,15 +39,9 @@ public class UserPanel extends LayerContainer {
 		root.setMargins(margin);
 		root.setGap(12);
 
-		nameBlock.addSpriteSelectionHandler(e -> changeName());
-
-		confirmBlock.setHidden(true);
-		confirmBlock.addSpriteSelectionHandler(e -> {
-			userData.setName(newName);
-			DataCenter.saveUserData();
-			confirmBlock.setHidden(true);
-			nameBlock.refresh();
-			UiCenter.showAnnounce();
+		searchBlock.addSpriteSelectionHandler(e -> {
+			PopUtil.dialog.setDraggable(false);//Refactory 移到 GF 去
+			PopUtil.showDialog(volunteerSelector, 200, 500);
 		});
 
 		reportBlock.addSpriteSelectionHandler(e -> Util.openUrl(Util.REPORT_URL));
@@ -57,12 +50,12 @@ public class UserPanel extends LayerContainer {
 		//Refactory RwdRootPanel.getDeviceType() 改善
 		//TODO 動態調整
 		if (RwdRootPanel.getWidth() > RwdRootPanel.WIDTH_DEMARCATION[RwdRootPanel.DEVICE_MOBILE_L]) {
-			root.addChild(confirmBlock, iconSize);
+			root.addChild(searchBlock, iconSize);
 			root.addChild(nameBlock, 0.4);
 			root.addChild(reportBlock, 0.3);
 			root.addChild(volunteerBlock, 0.3);
 		} else {
-			root.addChild(confirmBlock, 50);
+			root.addChild(searchBlock, 50);
 			root.addChild(nameBlock, 1);
 			root.addChild(reportBlock, 80);
 			root.addChild(volunteerBlock, 80);
@@ -72,8 +65,8 @@ public class UserPanel extends LayerContainer {
 
 		volunteerSelector.addSelectionHandler(e -> {
 			PopUtil.closeDialog();
-			newName = e.getSelectedItem();
-			confirmBlock.setHidden(newName.equals(userData.getName()));
+			String newName = e.getSelectedItem();
+			nameBlock.setNewName(newName);
 			root.redraw();
 			UiCenter.changeName(newName);
 		});
@@ -84,20 +77,41 @@ public class UserPanel extends LayerContainer {
 		root.resize(width, height);
 	}
 
-	private void changeName() {
-		PopUtil.dialog.setDraggable(false);//Refactory 移到 GF 去
-		PopUtil.showDialog(volunteerSelector, 200, 500);
-	}
-
 	class NameBlock extends TextButton {
+		String newName = userData.getName();
+
 		NameBlock() {
 			setBgColor(BG);
 			setBgRadius(BgRadius);
+			addSpriteSelectionHandler(e -> {
+				if (newName.equals(userData.getName())) {
+					//TODO 個人統計資訊
+				} else {
+					nameSetting();
+				}
+			});
+
 			refresh();
 		}
 
 		void refresh() {
-			setText("嗨！" + userData.getName());
+			setText(
+				newName.equals(userData.getName()) ?
+					"嗨！" + userData.getName() :
+					userData.getName() + "→" + newName
+			);
+		}
+
+		void setNewName(String newName) {
+			this.newName = newName;
+			refresh();
+		}
+
+		void nameSetting() {
+			userData.setName(newName);
+			DataCenter.saveUserData();
+			refresh();
+			UiCenter.showAnnounce();
 		}
 	}
 
