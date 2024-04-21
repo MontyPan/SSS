@@ -10,4 +10,5 @@ public interface ImageRS extends ClientBundle {
 	ImageResource calendarCheck();
 	ImageResource pencilSquare();
 	ImageResource personCheck();
+	ImageResource search();
 }
