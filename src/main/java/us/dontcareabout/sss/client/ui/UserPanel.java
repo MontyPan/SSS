@@ -127,8 +127,10 @@ public class UserPanel extends LayerContainer {
 
 		@Override
 		protected void adjustMember() {
-			image.setWidth(getWidth());
-			image.setHeight(getHeight());
+			image.setLX(5);
+			image.setLY(5);
+			image.setWidth(getWidth() - 10);
+			image.setHeight(getHeight() - 10);
 		}
 	}
 
