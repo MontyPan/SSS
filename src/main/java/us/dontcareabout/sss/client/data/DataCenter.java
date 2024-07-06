@@ -71,6 +71,7 @@ public class DataCenter {
 					buildVolunteerMap();
 					eventBus.fireEvent(new ScheduleReadyEvent());
 					UiCenter.showAnnounce();
+					UiCenter.changeName(getUserData().getName());
 				}
 
 				@Override
