@@ -28,17 +28,6 @@ public class Util {
 		return grade + "-" + serial;
 	}
 
-	/**
-	 * @param isUp 是不是上學期
-	 * @return 「X 年度第 Y 學期」的字串，格式為「X-Z」（上學期 Z=1、下學期 Z=2）
-	 * 	對應 Google Sheet 的學期字串
-	 * Delete
-	 */
-	@Deprecated
-	public static String semester(int year, boolean isUp) {
-		return year + "-" + (isUp ? 1 : 2);
-	}
-
 	public static String toString(WeekSchedule data) {
 		StringBuilder result = new StringBuilder(MMdd.format(data.getDate()) + "\n");
 

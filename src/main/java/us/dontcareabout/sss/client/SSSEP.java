@@ -1,12 +1,14 @@
 package us.dontcareabout.sss.client;
 
 import com.google.gwt.user.client.Window;
+import com.sencha.gxt.core.client.util.DateWrapper;
 
 import us.dontcareabout.gst.client.GSTEP;
 import us.dontcareabout.gst.client.data.SheetIdDao;
 import us.dontcareabout.gxt.client.component.RwdRootPanel;
 import us.dontcareabout.sss.client.data.DataCenter;
 import us.dontcareabout.sss.client.ui.MainView;
+import us.dontcareabout.sss.client.vo.YS;
 
 public class SSSEP extends GSTEP {
 	public SSSEP() {
@@ -27,6 +29,6 @@ public class SSSEP extends GSTEP {
 	@Override
 	protected void start() {
 		RwdRootPanel.setComponent(new MainView());
-		DataCenter.wantSchedule(SheetIdDao.priorityValue(), 112, false); //Refactory magic number
+		DataCenter.wantSchedule(SheetIdDao.priorityValue(), new YS(new DateWrapper(2024, 3, 3))); //Refactory magic number
 	}
 }

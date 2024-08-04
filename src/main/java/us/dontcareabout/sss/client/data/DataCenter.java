@@ -21,6 +21,7 @@ import us.dontcareabout.sss.client.vo.Assignment;
 import us.dontcareabout.sss.client.vo.UserData;
 import us.dontcareabout.sss.client.vo.Volunteer;
 import us.dontcareabout.sss.client.vo.WeekSchedule;
+import us.dontcareabout.sss.client.vo.YS;
 
 public class DataCenter {
 	private final static SimpleEventBus eventBus = new SimpleEventBus();
@@ -60,9 +61,9 @@ public class DataCenter {
 		userDataDao.store(userData);
 	}
 
-	public static void wantSchedule(String sheetId, int year, boolean isUp) {
+	public static void wantSchedule(String sheetId, YS ys) {
 		new SheetDto<WeekSchedule>().key(ApiKey.jsValue())
-				.sheetId(sheetId).tabName(Util.semester(year, isUp))
+				.sheetId(sheetId).tabName(Util.toString(ys))
 				.fetch(
 			new Callback<WeekSchedule>() {
 				@Override
