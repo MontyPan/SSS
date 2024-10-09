@@ -14,11 +14,10 @@ public class MainView extends VerticalLayoutContainer {
 
 		add(sflc, new VerticalLayoutData(1, 1));
 
-		//Refactory RwdRootPanel
-		if (RwdRootPanel.getWidth() > RwdRootPanel.WIDTH_DEMARCATION[RwdRootPanel.DEVICE_MOBILE_L]) {
-			add(new UserPanel(), new VerticalLayoutData(1, 60));
-		} else {
+		if (RwdRootPanel.isMobileDevice()) {
 			add(new UserPanel(), new VerticalLayoutData(1, UserPanel.M_HEIGHT));
+		} else {
+			add(new UserPanel(), new VerticalLayoutData(1, 60));
 		}
 	}
 }

@@ -47,18 +47,16 @@ public class UserPanel extends LayerContainer {
 		reportBlock.addSpriteSelectionHandler(e -> Util.openUrl(Util.REPORT_URL));
 		volunteerBlock.addSpriteSelectionHandler(e -> Util.openUrl(Util.VOLUNTEER_HOUR_URL));
 
-		//Refactory RwdRootPanel.getDeviceType() 改善
-		//TODO 動態調整
-		if (RwdRootPanel.getWidth() > RwdRootPanel.WIDTH_DEMARCATION[RwdRootPanel.DEVICE_MOBILE_L]) {
-			root.addChild(searchBlock, iconSize);
-			root.addChild(nameBlock, 0.4);
-			root.addChild(reportBlock, 0.3);
-			root.addChild(volunteerBlock, 0.3);
-		} else {
+		if (RwdRootPanel.isMobileDevice()) {
 			root.addChild(searchBlock, 50);
 			root.addChild(nameBlock, 1);
 			root.addChild(reportBlock, 80);
 			root.addChild(volunteerBlock, 80);
+		} else {
+			root.addChild(searchBlock, iconSize);
+			root.addChild(nameBlock, 0.4);
+			root.addChild(reportBlock, 0.3);
+			root.addChild(volunteerBlock, 0.3);
 		}
 
 		addLayer(root);
