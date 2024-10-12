@@ -13,6 +13,8 @@ import us.dontcareabout.gwt.client.google.sheet.Sheet;
 import us.dontcareabout.gwt.client.google.sheet.SheetDto;
 import us.dontcareabout.gwt.client.google.sheet.SheetDto.Callback;
 import us.dontcareabout.sss.client.Util;
+import us.dontcareabout.sss.client.data.event.InitFinishEvent;
+import us.dontcareabout.sss.client.data.event.InitFinishEvent.InitFinishHandler;
 import us.dontcareabout.sss.client.data.event.ScheduleReadyEvent;
 import us.dontcareabout.sss.client.data.event.ScheduleReadyEvent.ScheduleReadyHandler;
 import us.dontcareabout.sss.client.gf.StorageDao;
@@ -84,6 +86,10 @@ public class DataCenter {
 
 	public static HandlerRegistration addScheduleReady(ScheduleReadyHandler handler) {
 		return eventBus.addHandler(ScheduleReadyEvent.TYPE, handler);
+	}
+
+	public static HandlerRegistration addInitFinish(InitFinishHandler handler) {
+		return eventBus.addHandler(InitFinishEvent.TYPE, handler);
 	}
 
 	////////////////
