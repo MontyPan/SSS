@@ -11,6 +11,7 @@ import us.dontcareabout.gxt.client.draw.layout.HorizontalLayoutLayer;
 import us.dontcareabout.gxt.client.draw.layout.VerticalLayoutLayer;
 import us.dontcareabout.sss.client.Util;
 import us.dontcareabout.sss.client.data.DataCenter;
+import us.dontcareabout.sss.client.vo.Record;
 import us.dontcareabout.sss.client.vo.WeekSchedule;
 
 public class SemesterSchedule extends LayerContainer {
@@ -65,9 +66,7 @@ public class SemesterSchedule extends LayerContainer {
 
 			blockList.stream().forEach(b -> addChild(b, rowHeight));
 
-			headerTB.addSpriteSelectionHandler(e -> {
-				Util.copy(Util.toString(data));
-			});
+			headerTB.addSpriteSelectionHandler(e -> copyWeekText(data));
 		}
 
 		void changeName(String name) {
@@ -120,5 +119,32 @@ public class SemesterSchedule extends LayerContainer {
 			setBgColor(RGB.LIGHTGRAY);
 			setBgRadius(5);
 		}
+	}
+
+	/**
+	 * 把當週的進班名單跟進班主題（如果有）組成字串，並複製到剪貼簿中
+	 */
+	private static void copyWeekText(WeekSchedule data) {
+		StringBuilder result = new StringBuilder(Util.MMdd.format(data.getDate()) + "\n");
+
+		for (int g = 1; g <= Util.MAX_GRADE; g++) {
+			for (int s = 1; s <= Util.MAX_SERIAL; s++) {
+				String className = Util.className(g, s);
+				result.append(className + " " + data.getHost(g, s) + " : ");
+
+				for (Record r : DataCenter.recordList) {
+					if (r.getGrade() == g && r.getSerial() == s && r.getDate().equals(data.getDate())) {
+						result.append(r.getTopic());
+						break;
+					}
+				}
+
+				result.append("\n");
+			}
+
+			result.append("\n");
+		}
+
+		Util.copy(result.substring(0, result.length() - 1));
 	}
 }

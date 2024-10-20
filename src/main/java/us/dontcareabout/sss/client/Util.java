@@ -3,7 +3,6 @@ package us.dontcareabout.sss.client;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 
-import us.dontcareabout.sss.client.vo.WeekSchedule;
 import us.dontcareabout.sss.client.vo.YS;
 
 public class Util {
@@ -26,22 +25,6 @@ public class Util {
 	 */
 	public static String className(int grade, int serial) {
 		return grade + "-" + serial;
-	}
-
-	public static String toString(WeekSchedule data) {
-		StringBuilder result = new StringBuilder(MMdd.format(data.getDate()) + "\n");
-
-		for (int g = 1; g <= Util.MAX_GRADE; g++) {
-			for (int s = 1; s <= Util.MAX_SERIAL; s++) {
-				String className = Util.className(g, s);
-				result.append(className + " " + data.getHost(g, s) + " : ");
-				result.append("\n");
-			}
-
-			result.append("\n");
-		}
-
-		return result.substring(0, result.length() - 1);
 	}
 
 	public static String toString(YS ys) {
