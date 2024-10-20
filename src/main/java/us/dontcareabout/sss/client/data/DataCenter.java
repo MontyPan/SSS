@@ -9,17 +9,21 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 
 import us.dontcareabout.gst.client.data.ApiKey;
+import us.dontcareabout.gst.client.data.SheetIdDao;
 import us.dontcareabout.gwt.client.google.sheet.Sheet;
 import us.dontcareabout.gwt.client.google.sheet.SheetDto;
 import us.dontcareabout.gwt.client.google.sheet.SheetDto.Callback;
 import us.dontcareabout.sss.client.Util;
 import us.dontcareabout.sss.client.data.event.InitFinishEvent;
 import us.dontcareabout.sss.client.data.event.InitFinishEvent.InitFinishHandler;
+import us.dontcareabout.sss.client.data.event.RecordReadyEvent;
+import us.dontcareabout.sss.client.data.event.RecordReadyEvent.RecordReadyHandler;
 import us.dontcareabout.sss.client.data.event.ScheduleReadyEvent;
 import us.dontcareabout.sss.client.data.event.ScheduleReadyEvent.ScheduleReadyHandler;
 import us.dontcareabout.sss.client.gf.StorageDao;
 import us.dontcareabout.sss.client.ui.UiCenter;
 import us.dontcareabout.sss.client.vo.Assignment;
+import us.dontcareabout.sss.client.vo.Record;
 import us.dontcareabout.sss.client.vo.UserData;
 import us.dontcareabout.sss.client.vo.Volunteer;
 import us.dontcareabout.sss.client.vo.WeekSchedule;
@@ -38,6 +42,7 @@ public class DataCenter {
 	// ==== 原始資料區 ==== //
 	private static UserData userData;
 	public static List<WeekSchedule> weekScheduleList;
+	public static List<Record> recordList;
 	// ======== //
 
 	// ==== 二級資料區 ==== //
@@ -86,6 +91,29 @@ public class DataCenter {
 
 	public static HandlerRegistration addScheduleReady(ScheduleReadyHandler handler) {
 		return eventBus.addHandler(ScheduleReadyEvent.TYPE, handler);
+	}
+
+	public static void wantRecord() {
+		new SheetDto<Record>().key(ApiKey.jsValue())
+				.sheetId(SheetIdDao.priorityValue()).tabName("進班回報")
+				.fetch(
+			new Callback<Record>() {
+				@Override
+				public void onSuccess(Sheet<Record> gs) {
+					recordList = gs.getRows();
+					eventBus.fireEvent(new RecordReadyEvent());
+				}
+
+				@Override
+				public void onError(Throwable exception) {
+					loadError();
+				}
+			}
+		);
+	}
+
+	public static HandlerRegistration addRecordReady(RecordReadyHandler handler) {
+		return eventBus.addHandler(RecordReadyEvent.TYPE, handler);
 	}
 
 	public static HandlerRegistration addInitFinish(InitFinishHandler handler) {
