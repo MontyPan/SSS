@@ -1,5 +1,6 @@
 package us.dontcareabout.sss.client.data;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -165,5 +166,21 @@ public class DataCenter {
 		}
 	}
 
+	////////////////
+
+	public static String findTopic(Date date, int g, int s) {
+		String result = "";
+
+		for (Record r : DataCenter.recordList) {
+			if (r.getGrade() == g && r.getSerial() == s && r.getDate().equals(date)) {
+				result = r.getTopic();
+				break;
+			}
+		}
+
+		return result;
+	}
+
+	////////////////
 	interface UserDataMapper extends ObjectMapper<UserData> {}
 }
