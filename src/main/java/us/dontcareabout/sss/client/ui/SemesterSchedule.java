@@ -5,13 +5,13 @@ import java.util.List;
 
 import com.sencha.gxt.chart.client.draw.RGB;
 
+import us.dontcareabout.gxt.client.draw.LRectangleSprite;
 import us.dontcareabout.gxt.client.draw.LayerContainer;
 import us.dontcareabout.gxt.client.draw.component.TextButton;
 import us.dontcareabout.gxt.client.draw.layout.HorizontalLayoutLayer;
 import us.dontcareabout.gxt.client.draw.layout.VerticalLayoutLayer;
 import us.dontcareabout.sss.client.Util;
 import us.dontcareabout.sss.client.data.DataCenter;
-import us.dontcareabout.sss.client.vo.Record;
 import us.dontcareabout.sss.client.vo.WeekSchedule;
 
 public class SemesterSchedule extends LayerContainer {
@@ -24,7 +24,7 @@ public class SemesterSchedule extends LayerContainer {
 		root.setMargins(5);
 		root.setGap(5);
 		addLayer(root);
-		DataCenter.addScheduleReady(e -> refresh());
+		DataCenter.addInitFinish(e -> refresh());
 		UiCenter.addChangeName(e -> {
 			weekClmn.stream().forEach(wc -> wc.changeName(e.data));
 		});
@@ -60,7 +60,12 @@ public class SemesterSchedule extends LayerContainer {
 
 			for (int g = 1; g <= Util.MAX_GRADE; g++) {
 				for (int s = 1; s <= Util.MAX_SERIAL; s++) {
-					blockList.add(new Block(data.getHost(g, s)));
+					blockList.add(
+						new Block(
+							data.getHost(g, s),
+							!DataCenter.findTopic(data.getDate(), g, s).isEmpty()
+						)
+					);
 				}
 			}
 
@@ -110,9 +115,18 @@ public class SemesterSchedule extends LayerContainer {
 	}
 
 	class Block extends TextButton {
-		Block(String string) {
+		LRectangleSprite topic = new LRectangleSprite(80, 2);
+
+		Block(String string, boolean hasTopic) {
 			this();
 			setText(string);
+
+			if(!hasTopic) { return; }
+
+			topic.setFill(RGB.RED);
+			topic.setLX(10);
+			topic.setLY(36);
+			add(topic);
 		}
 
 		Block() {
@@ -131,14 +145,7 @@ public class SemesterSchedule extends LayerContainer {
 			for (int s = 1; s <= Util.MAX_SERIAL; s++) {
 				String className = Util.className(g, s);
 				result.append(className + " " + data.getHost(g, s) + " : ");
-
-				for (Record r : DataCenter.recordList) {
-					if (r.getGrade() == g && r.getSerial() == s && r.getDate().equals(data.getDate())) {
-						result.append(r.getTopic());
-						break;
-					}
-				}
-
+				result.append(DataCenter.findTopic(data.getDate(), g, s));
 				result.append("\n");
 			}
 
