@@ -21,7 +21,7 @@ import us.dontcareabout.sss.client.data.event.RecordReadyEvent.RecordReadyHandle
 import us.dontcareabout.sss.client.data.event.ScheduleReadyEvent;
 import us.dontcareabout.sss.client.data.event.ScheduleReadyEvent.ScheduleReadyHandler;
 import us.dontcareabout.sss.client.gf.StorageDao;
-import us.dontcareabout.sss.client.ui.UiCenter;
+import us.dontcareabout.sss.client.gf.TaskSet;
 import us.dontcareabout.sss.client.vo.Assignment;
 import us.dontcareabout.sss.client.vo.Record;
 import us.dontcareabout.sss.client.vo.UserData;
@@ -68,6 +68,29 @@ public class DataCenter {
 		userDataDao.store(userData);
 	}
 
+	////////////////
+
+	/**
+	 * 索取一學期的完整資料（含 {@link WeekSchedule} 與 {@link Record}）
+	 */
+	public static void wantYS(YS ys) {
+		TaskSet ts = new TaskSet();
+		ts.addAsyncTask(
+			() -> wantSchedule(SheetIdDao.priorityValue(), ys),
+			addScheduleReady(e -> ts.check())
+		).addAsyncTask(
+			() -> wantRecord(),
+			addRecordReady(e -> ts.check())
+		).addFinalTask(() -> wantYSReadyProcess())
+		.start();
+	}
+
+	private static void wantYSReadyProcess() {
+		buildVolunteerMap();
+		eventBus.fireEvent(new InitFinishEvent());
+	}
+
+	//TODO 拿掉 sheetId
 	public static void wantSchedule(String sheetId, YS ys) {
 		new SheetDto<WeekSchedule>().key(ApiKey.jsValue())
 				.sheetId(sheetId).tabName(Util.toString(ys))
@@ -76,10 +99,7 @@ public class DataCenter {
 				@Override
 				public void onSuccess(Sheet<WeekSchedule> gs) {
 					weekScheduleList = gs.getRows();
-					buildVolunteerMap();
 					eventBus.fireEvent(new ScheduleReadyEvent());
-					UiCenter.showAnnounce();
-					UiCenter.changeName(getUserData().getName());
 				}
 
 				@Override
