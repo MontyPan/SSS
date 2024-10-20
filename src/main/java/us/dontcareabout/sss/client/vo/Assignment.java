@@ -2,29 +2,22 @@ package us.dontcareabout.sss.client.vo;
 
 import java.util.Date;
 
+import us.dontcareabout.sss.client.data.DataCenter;
+
 /**
- * <pre>進班</pre> 資料。
+ * <code>進班</code> 資料。
  */
 public class Assignment {
 	public final int grade;
 	public final int serial;
 	public final Date date;
+	public final String topic;
 
-	private String topic;
-
-	//這三項資料來自「學期班表 sheet」，所以直接 init
-	//topic 來自「進班 sheet」，改成 getter / setter 後續再補上，程式會比較好寫
+	//因為是第二級資料，所以假設 DataCenter 那邊都 ready
 	public Assignment(int grade, int serial, Date date) {
 		this.grade = grade;
 		this.serial = serial;
 		this.date = date;
-	}
-
-	public String getTopic() {
-		return topic;
-	}
-
-	public void setTopic(String topic) {
-		this.topic = topic;
+		this.topic = DataCenter.findTopic(date, grade, serial);
 	}
 }
