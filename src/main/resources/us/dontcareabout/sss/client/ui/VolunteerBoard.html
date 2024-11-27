@@ -1,0 +1,10 @@
+<div class="{style.title}"><span class="{style.name}">{name}</span> 大人本學期戰績：</div>
+<div class="{style.normal}">
+<table class="{style.table}">
+	<tpl for="assignmentList"><tr class="{style.tr}">
+		<td class="{style.date}">{date:date("MM/dd")}</td>
+		<td class="{style.clazz}">{grade}-{serial}</td>
+		<td class="{style.topic}">{topic}</td>
+	</tr></tpl>
+</table>
+</div>
