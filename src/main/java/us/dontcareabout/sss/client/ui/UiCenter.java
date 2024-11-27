@@ -12,6 +12,7 @@ import us.dontcareabout.sss.client.ui.event.ChangeNameEvent;
 import us.dontcareabout.sss.client.ui.event.ChangeNameEvent.ChangeNameHandler;
 import us.dontcareabout.sss.client.vo.Assignment;
 import us.dontcareabout.sss.client.vo.Volunteer;
+import us.dontcareabout.sss.client.vo.WeekSchedule;
 
 public class UiCenter {
 	private final static SimpleEventBus eventBus = new SimpleEventBus();
@@ -31,11 +32,11 @@ public class UiCenter {
 		Volunteer v = DataCenter.volunteerMap.get(name);
 		Date now = new Date();
 		for (Assignment t : v.assignmentList) {
-			if (now.before(t.date)) {
+			if (now.before(t.getDate())) {
 				announcePad.refresh(
 					name,
-					t.date,
-					Util.className(t.grade, t.serial)
+					t.getDate(),
+					Util.className(t.getGrade(), t.getSerial())
 				);
 				PopUtil.showDialog(announcePad);
 				return;
