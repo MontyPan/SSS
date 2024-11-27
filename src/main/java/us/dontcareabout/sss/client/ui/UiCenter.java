@@ -18,6 +18,7 @@ public class UiCenter {
 	private final static SimpleEventBus eventBus = new SimpleEventBus();
 
 	private static AnnounceBoard announcePad = new AnnounceBoard();
+	private static VolunteerBoard volunteerPad = new VolunteerBoard();
 
 	public static void changeName(String name) {
 		eventBus.fireEvent(new ChangeNameEvent(name));
@@ -30,6 +31,7 @@ public class UiCenter {
 	public static void showAnnounce() {
 		String name = DataCenter.getUserData().getName();
 		Volunteer v = DataCenter.volunteerMap.get(name);
+		//TODO v 是 null 的處理
 		Date now = new Date();
 		for (Assignment t : v.assignmentList) {
 			if (now.before(t.getDate())) {
@@ -42,5 +44,10 @@ public class UiCenter {
 				return;
 			}
 		}
+	}
+
+	public static void showVolunteer(WeekSchedule data, int g, int s) {
+		volunteerPad.refresh(data, g, s);
+		PopUtil.showDialog(volunteerPad);
 	}
 }
