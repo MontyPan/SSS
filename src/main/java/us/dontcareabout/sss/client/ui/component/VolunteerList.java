@@ -27,7 +27,7 @@ public class VolunteerList extends LayerContainer implements HasSelectionHandler
 		root.setGap(4);
 		root.setMargins(4);
 		addLayer(root);
-		DataCenter.addScheduleReady(e-> refresh());
+		DataCenter.addInitFinish(e-> refresh());
 	}
 
 	public void filter(String value) {
