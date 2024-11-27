@@ -60,12 +60,7 @@ public class SemesterSchedule extends LayerContainer {
 
 			for (int g = 1; g <= Util.MAX_GRADE; g++) {
 				for (int s = 1; s <= Util.MAX_SERIAL; s++) {
-					blockList.add(
-						new Block(
-							data.getHost(g, s),
-							!DataCenter.findTopic(data.getDate(), g, s).isEmpty()
-						)
-					);
+					blockList.add(new Block(data, g, s));
 				}
 			}
 
@@ -117,21 +112,19 @@ public class SemesterSchedule extends LayerContainer {
 	class Block extends TextButton {
 		LRectangleSprite topic = new LRectangleSprite(80, 2);
 
-		Block(String string, boolean hasTopic) {
-			this();
-			setText(string);
+		Block(WeekSchedule data, int g, int s) {
+			setBgColor(RGB.LIGHTGRAY);
+			setBgRadius(5);
 
-			if(!hasTopic) { return; }
+			setText(data.getHost(g, s));
+			addSpriteSelectionHandler(e -> UiCenter.showVolunteer(data, g, s));
+
+			if(DataCenter.findTopic(data.getDate(), g, s).isEmpty()) { return; }
 
 			topic.setFill(RGB.RED);
 			topic.setLX(10);
 			topic.setLY(36);
 			add(topic);
-		}
-
-		Block() {
-			setBgColor(RGB.LIGHTGRAY);
-			setBgRadius(5);
 		}
 	}
 
