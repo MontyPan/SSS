@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sencha.gxt.chart.client.draw.RGB;
+import com.sencha.gxt.core.client.dom.ScrollSupport.ScrollMode;
+import com.sencha.gxt.widget.core.client.container.FlowLayoutContainer;
 
 import us.dontcareabout.gxt.client.draw.LRectangleSprite;
 import us.dontcareabout.gxt.client.draw.LayerContainer;
@@ -14,13 +16,22 @@ import us.dontcareabout.sss.client.Util;
 import us.dontcareabout.sss.client.data.DataCenter;
 import us.dontcareabout.sss.client.vo.WeekSchedule;
 
-public class SemesterSchedule extends LayerContainer {
+public class SemesterSchedule extends FlowLayoutContainer {
+	public SemesterSchedule() {
+		setScrollMode(ScrollMode.AUTO);
+		add(new SSLayerContainer());
+	}
+}
+
+//Refactory 為了減少 diff 暫時做的處置
+//目前也還沒辦法估算凍結行列的功能需要改寫多少... Orz
+class SSLayerContainer extends LayerContainer {
 	private static final int rowHeight = 40;
 
 	private HorizontalLayoutLayer root = new HorizontalLayoutLayer();
 	private List<WeekColumn> weekClmn = new ArrayList<>();
 
-	public SemesterSchedule() {
+	public SSLayerContainer() {
 		root.setMargins(5);
 		root.setGap(5);
 		addLayer(root);
