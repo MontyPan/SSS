@@ -2,12 +2,10 @@ package us.dontcareabout.sss.client.gf;
 
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Style;
-import com.sencha.gxt.chart.client.draw.DrawComponent;
-import com.sencha.gxt.chart.client.draw.sprite.RectangleSprite;
+import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.core.client.dom.HasScrollSupport;
 import com.sencha.gxt.core.client.dom.ScrollSupport.ScrollMode;
 import com.sencha.gxt.core.client.util.Size;
-import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.FlowLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.HorizontalLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.HorizontalLayoutContainer.HorizontalLayoutData;
@@ -15,22 +13,22 @@ import com.sencha.gxt.widget.core.client.container.ResizeContainer;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.VerticalLayoutData;
 
-import us.dontcareabout.gxt.client.util.ColorUtil;
-
 /**
- * 內含四個 component，成「田」形 layout。
- * 右下角的 component 如果左右捲動，右上角的 component 會同步左右捲動；
- * 右下角的 component 如果上下捲動，左下角的 component 會同步上下捲動。
+ * 內含四個 widget，成「田」形 layout。各自名稱功能為：
+ * <ul>
+ * 	<li>左上角：fix。與捲動無關的 widget</li>
+ * 	<li>右下角：main。同步捲動的主體 widget</li>
+ *	<li>右上角：hScroll。若 <code>main</code> 水平捲動，此 widget 也會跟著水平捲動，反之亦然</li>
+ *	<li>左下角：vScroll。若 <code>main</code> 垂直捲動，此 widget 也會跟著垂直捲動，反之亦然</li>
+ * </ul>
+ * <p>
+ * 建立需要設定 <code>fix</code> 的大小，
+ * 並以此決定 <code>hScroll</code> 的高度以及 <code>vScroll</code> 的寬度。
  */
 public class SyncScrollContainer extends ResizeContainer {
+	//Refactory 弄個 LayoutDataUtil 好了... Zzzz
 	private static VerticalLayoutData v1x1 = new VerticalLayoutData(1, 1);
 	private static HorizontalLayoutData h1x1 = new HorizontalLayoutData(1, 1);
-
-	//TODO 由 caller 決定
-	private int freezeW = 150;
-	private int freezeH = 50;
-	private int mainW = 800;
-	private int mainH = 1200;
 
 	private HorizontalLayoutContainer root = new HorizontalLayoutContainer();
 	private VerticalLayoutContainer left = new VerticalLayoutContainer();
@@ -39,8 +37,14 @@ public class SyncScrollContainer extends ResizeContainer {
 	private FlowLayoutContainer downLeft = new FlowLayoutContainer();
 	private FlowLayoutContainer main = new FlowLayoutContainer();
 
+	/**
+	 * 可使用 {@link Builder} 建立 instance。
+	 */
+	//為了 layout 的部份好寫（有加入先後順序問題），所以直接弄成 builder 方式來建立 instance。
+	public SyncScrollContainer(
+			int fixW, int fixH,
+			Widget fixWidget, Widget mainWidget, Widget hScrollWidget, Widget vScrollWidget) {
 
-	public SyncScrollContainer() {
 		//from SimpleContainer()
 		setElement(Document.get().createDivElement());
 
@@ -50,25 +54,25 @@ public class SyncScrollContainer extends ResizeContainer {
 		//from SimpleContainer.setWidget()
 		insert(root, 0);
 
-		root.add(left, new HorizontalLayoutData(freezeW, 1));
+		root.add(left, new HorizontalLayoutData(fixW, 1));
 		root.add(right, h1x1);
 
-		VerticalLayoutData vld = new VerticalLayoutData(1, freezeH);
-		left.add(new TextButton("上左"), vld);
+		VerticalLayoutData vld = new VerticalLayoutData(1, fixH);
+		left.add(fixWidget, vld);
 		left.add(downLeft, v1x1);
 		right.add(upRight, vld);
 		right.add(main, v1x1);
 
-		upRight.setScrollMode(ScrollMode.AUTOX);
-		upRight.add(new BlockTest(mainW, freezeH));
+		upRight.setScrollMode(ScrollMode.AUTO);
+		upRight.add(hScrollWidget);
 		upRight.addScrollHandler(e -> syncPosition(upRight, main, true));
 
-		downLeft.setScrollMode(ScrollMode.AUTOY);
-		downLeft.add(new BlockTest(freezeW, mainH));
+		downLeft.setScrollMode(ScrollMode.AUTO);
+		downLeft.add(vScrollWidget);
 		downLeft.addScrollHandler(e -> syncPosition(downLeft, main, false));
 
 		main.setScrollMode(ScrollMode.AUTO);
-		main.add(new BlockTest(mainW, mainH));
+		main.add(mainWidget);
 		main.addScrollHandler(e -> {
 			syncPosition(main, upRight, true);
 			syncPosition(main, downLeft, false);
@@ -104,26 +108,45 @@ public class SyncScrollContainer extends ResizeContainer {
 
 	}
 
-	//Delete 測試用
-	class BlockTest extends DrawComponent {
-		private int unit = 100;
-		private int index = 0;
+	public static final class Builder {
+		private int fixW;
+		private int fixH;
+		private Widget fixWidget;
+		private Widget mainWidget;
+		private Widget hScrollWidget;
+		private Widget vScrollWidget;
 
-		BlockTest(int w, int h) {
-			super(w, h);
-
-			for (int i = 0; i <= w / unit; i++) {
-				for (int i2 = 0; i2 <= h / unit; i2++) {
-					this.addSprite(make(i, i2));
-				}
-			}
+		public Builder fixSize(int w, int h) {
+			fixW = w;
+			fixH = h;
+			return this;
 		}
 
-		private RectangleSprite make(int i, int i2) {
-			RectangleSprite result = new RectangleSprite(unit, unit, i * unit, i2 * unit);
-			result.setFill(ColorUtil.differential(index++));
-			result.setRadius(10);
-			return result;
+		public Builder fixWidget(Widget widget) {
+			fixWidget = widget;
+			return this;
+		}
+
+		public Builder mainWidget(Widget widget) {
+			mainWidget = widget;
+			return this;
+		}
+
+		public Builder hScrollWidget(Widget widget) {
+			hScrollWidget = widget;
+			return this;
+		}
+
+		public Builder vScrollWidget(Widget widget) {
+			vScrollWidget = widget;
+			return this;
+		}
+
+		public SyncScrollContainer build() {
+			return new SyncScrollContainer(
+				fixW, fixH,
+				fixWidget, mainWidget, hScrollWidget, vScrollWidget
+			);
 		}
 	}
 }
