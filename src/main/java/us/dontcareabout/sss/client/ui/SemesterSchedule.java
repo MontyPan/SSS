@@ -3,9 +3,11 @@ package us.dontcareabout.sss.client.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.chart.client.draw.RGB;
-import com.sencha.gxt.core.client.dom.ScrollSupport.ScrollMode;
-import com.sencha.gxt.widget.core.client.container.FlowLayoutContainer;
+import com.sencha.gxt.core.client.util.Margins;
+import com.sencha.gxt.widget.core.client.container.SimpleContainer;
 
 import us.dontcareabout.gxt.client.draw.LRectangleSprite;
 import us.dontcareabout.gxt.client.draw.LayerContainer;
@@ -14,70 +16,117 @@ import us.dontcareabout.gxt.client.draw.layout.HorizontalLayoutLayer;
 import us.dontcareabout.gxt.client.draw.layout.VerticalLayoutLayer;
 import us.dontcareabout.sss.client.Util;
 import us.dontcareabout.sss.client.data.DataCenter;
+import us.dontcareabout.sss.client.gf.SyncScrollContainer;
+import us.dontcareabout.sss.client.gf.SyncScrollContainer.Builder;
 import us.dontcareabout.sss.client.vo.WeekSchedule;
 
-public class SemesterSchedule extends FlowLayoutContainer {
-	public SemesterSchedule() {
-		setScrollMode(ScrollMode.AUTO);
-		add(new SSLayerContainer());
-	}
-}
-
-//Refactory 為了減少 diff 暫時做的處置
-//目前也還沒辦法估算凍結行列的功能需要改寫多少... Orz
-class SSLayerContainer extends LayerContainer {
+public class SemesterSchedule implements IsWidget {
 	private static final int rowHeight = 40;
+	private static final int fixW = 72;
+	private static final int blockW = 100;
 
-	private HorizontalLayoutLayer root = new HorizontalLayoutLayer();
-	private List<WeekColumn> weekClmn = new ArrayList<>();
+	private SyncScrollContainer instance;
+	private MainLayer mainLayer = new MainLayer();
+	private DateLayer dateLayer = new DateLayer();
+	private ClassLayer classLayer = new ClassLayer();
 
-	public SSLayerContainer() {
-		root.setMargins(5);
-		root.setGap(5);
-		addLayer(root);
+	public SemesterSchedule() {
+		instance = new Builder().fixSize(fixW, rowHeight)
+			.fixWidget(new SimpleContainer())
+			.mainWidget(mainLayer)
+			.hScrollWidget(dateLayer)
+			.vScrollWidget(classLayer)
+			.build();
 		DataCenter.addInitFinish(e -> refresh());
-		UiCenter.addChangeName(e -> {
-			weekClmn.stream().forEach(wc -> wc.changeName(e.data));
-		});
-
 	}
 
-	//XXX 用 root 決定大小，不用 override adjustMember()
+	@Override
+	public Widget asWidget() {
+		return instance;
+	}
 
 	private void refresh() {
-		ClassColumn staticCol = new ClassColumn();
-
-		weekClmn.clear();
-		for (WeekSchedule e : DataCenter.weekScheduleList) {
-			weekClmn.add(new WeekColumn(e));
-		}
-
-		root.clear();
-		root.addChild(staticCol, 72);
-		weekClmn.stream().forEach(wc -> root.addChild(wc, 100));
-
-		root.redeploy();
-
-		//XXX 由 root 決定自身大小會出現的程式碼，有沒有辦法不用每次搞這些呢？
-		root.resize(1, Integer.MAX_VALUE);	//XXX 數值給太小，裡頭的 child 可能不會觸發 adjustMember()
-		setPixelSize((int)root.getViewSize(), (int)staticCol.getViewSize());
+		mainLayer.refresh();
+		dateLayer.refresh();
+		classLayer.refresh();
 	}
 
+	class MainLayer extends LayerContainer {
+		List<WeekColumn> weekClmn = new ArrayList<>();
+		HorizontalLayoutLayer root = new HorizontalLayoutLayer();
+
+		public MainLayer() {
+			root.setMargins(5);
+			root.setGap(5);
+			addLayer(root);
+			UiCenter.addChangeName(e -> {
+				weekClmn.stream().forEach(wc -> wc.changeName(e.data));
+			});
+		}
+
+		void refresh() {
+			weekClmn.clear();
+			for (WeekSchedule e : DataCenter.weekScheduleList) {
+				weekClmn.add(new WeekColumn(e));
+			}
+
+			root.clear();
+			weekClmn.stream().forEach(wc -> root.addChild(wc, blockW));
+			root.redeploy();
+
+			//XXX 由 root 決定自身大小會出現的程式碼，有沒有辦法不用每次搞這些呢？
+			root.resize(1, Integer.MAX_VALUE);	//XXX 數值給太小，裡頭的 child 可能不會觸發 adjustMember()
+			setPixelSize((int)root.getViewSize(), (int)weekClmn.get(0).getViewSize());
+		}
+	}
+
+	class DateLayer extends LayerContainer {
+		HorizontalLayoutLayer root = new HorizontalLayoutLayer();
+
+		public DateLayer() {
+			root.setMargins(new Margins(0, 5, 0, 5));
+			root.setGap(5);
+			addLayer(root);
+		}
+
+		void refresh() {
+			root.clear();
+
+			DataCenter.weekScheduleList.forEach(data -> {
+				TextButton date = new TextButton(Util.MMdd.format(data.getDate()));
+				root.addChild(date, blockW);
+				date.addSpriteSelectionHandler(e -> copyWeekText(data));
+			});
+
+			root.redeploy();
+			root.resize(1, rowHeight);
+			setPixelSize((int)root.getViewSize(), rowHeight);
+		}
+	}
+
+	class ClassLayer extends LayerContainer {
+		//XXX ClassColumn 是固定的，根本不用 refresh
+		//但是寫在 c'tor 裡頭，TextButton 的字不會調整，所以暫時就按照 DateLayer 一樣搞一遍 Orz
+		void refresh() {
+			this.clear();
+			ClassColumn classClmn = new ClassColumn();
+			addLayer(classClmn);
+			classClmn.resize(fixW, 1);
+			setPixelSize(fixW, (int)classClmn.getViewSize());
+		}
+	}
+	
 	class WeekColumn extends BasicColumn {
 		List<Block> blockList = new ArrayList<>();
 
 		WeekColumn(WeekSchedule data) {
-			super(Util.MMdd.format(data.getDate()));
-
 			for (int g = 1; g <= Util.MAX_GRADE; g++) {
 				for (int s = 1; s <= Util.MAX_SERIAL; s++) {
 					blockList.add(new Block(data, g, s));
 				}
 			}
 
-			blockList.stream().forEach(b -> addChild(b, rowHeight));
-
-			headerTB.addSpriteSelectionHandler(e -> copyWeekText(data));
+			blockList.stream().forEach(b -> addText(b));
 		}
 
 		void changeName(String name) {
@@ -98,25 +147,23 @@ class SSLayerContainer extends LayerContainer {
 
 	class ClassColumn extends BasicColumn {
 		ClassColumn() {
-			super("");
+			setMargins(5);
+
 			for (int g = 1; g <= Util.MAX_GRADE; g++) {
 				for (int s = 1; s <= Util.MAX_SERIAL; s++) {
-					addChild(new TextButton(Util.className(g, s)), rowHeight);
+					addText(new TextButton(Util.className(g, s)));
 				}
 			}
 		}
 	}
 
-	/**
-	 * 主要負責決定 header
-	 */
 	class BasicColumn extends VerticalLayoutLayer {
-		TextButton headerTB;
-
-		BasicColumn(String header) {
+		BasicColumn() {
 			setGap(5);
-			headerTB = new TextButton(header);
-			addChild(headerTB, rowHeight);
+		}
+
+		void addText(TextButton tb) {
+			addChild(tb, rowHeight);
 		}
 	}
 
