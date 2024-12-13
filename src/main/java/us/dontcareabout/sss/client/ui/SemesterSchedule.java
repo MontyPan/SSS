@@ -1,11 +1,13 @@
 package us.dontcareabout.sss.client.ui;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.chart.client.draw.RGB;
+import com.sencha.gxt.chart.client.draw.sprite.RectangleSprite;
 import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.widget.core.client.container.SimpleContainer;
 
@@ -24,7 +26,7 @@ public class SemesterSchedule implements IsWidget {
 	private static final int rowHeight = 40;
 	private static final int fixW = 72;
 	private static final int blockW = 100;
-	private static final int gap = 5;
+	private static final int gap = 6;
 
 	private SyncScrollContainer instance;
 	private MainLayer mainLayer = new MainLayer();
@@ -50,19 +52,41 @@ public class SemesterSchedule implements IsWidget {
 		mainLayer.refresh();
 		dateLayer.refresh();
 		classLayer.refresh();
+
+		int x = 0;
+		Date now = new Date();
+
+		for (WeekSchedule ws : DataCenter.weekScheduleList) {
+			if (ws.getDate().after(now)) { break; }
+			x += blockW + gap;
+		}
+
+		instance.setHPosition(x);
+		mainLayer.setProgress(x);
 	}
 
 	class MainLayer extends LayerContainer {
 		List<WeekColumn> weekClmn = new ArrayList<>();
+		RectangleSprite progress = new RectangleSprite();
 		HorizontalLayoutLayer root = new HorizontalLayoutLayer();
 
 		public MainLayer() {
 			root.setMargins(gap);
 			root.setGap(gap);
+			root.setLZIndex(100);
 			addLayer(root);
+
+			progress.setFill(new RGB(235, 240, 235));
+			addSprite(progress);
+
 			UiCenter.addChangeName(e -> {
 				weekClmn.stream().forEach(wc -> wc.changeName(e.data));
 			});
+		}
+
+		void setProgress(int width) {
+			progress.setWidth(width + gap / 2);
+			redrawSurface();
 		}
 
 		void refresh() {
@@ -77,7 +101,9 @@ public class SemesterSchedule implements IsWidget {
 
 			//XXX 由 root 決定自身大小會出現的程式碼，有沒有辦法不用每次搞這些呢？
 			root.resize(1, Integer.MAX_VALUE);	//XXX 數值給太小，裡頭的 child 可能不會觸發 adjustMember()
-			setPixelSize((int)root.getViewSize(), (int)weekClmn.get(0).getViewSize());
+			//weekClmn 沒有算到 root 的 margin
+			setPixelSize((int)root.getViewSize(), (int)weekClmn.get(0).getViewSize() + gap);
+			progress.setHeight(getOffsetHeight());
 		}
 	}
 
