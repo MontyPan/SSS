@@ -24,6 +24,7 @@ public class SemesterSchedule implements IsWidget {
 	private static final int rowHeight = 40;
 	private static final int fixW = 72;
 	private static final int blockW = 100;
+	private static final int gap = 5;
 
 	private SyncScrollContainer instance;
 	private MainLayer mainLayer = new MainLayer();
@@ -56,8 +57,8 @@ public class SemesterSchedule implements IsWidget {
 		HorizontalLayoutLayer root = new HorizontalLayoutLayer();
 
 		public MainLayer() {
-			root.setMargins(5);
-			root.setGap(5);
+			root.setMargins(gap);
+			root.setGap(gap);
 			addLayer(root);
 			UiCenter.addChangeName(e -> {
 				weekClmn.stream().forEach(wc -> wc.changeName(e.data));
@@ -84,8 +85,8 @@ public class SemesterSchedule implements IsWidget {
 		HorizontalLayoutLayer root = new HorizontalLayoutLayer();
 
 		public DateLayer() {
-			root.setMargins(new Margins(0, 5, 0, 5));
-			root.setGap(5);
+			root.setMargins(new Margins(0, gap, 0, gap));
+			root.setGap(gap);
 			addLayer(root);
 		}
 
@@ -115,7 +116,7 @@ public class SemesterSchedule implements IsWidget {
 			setPixelSize(fixW, (int)classClmn.getViewSize());
 		}
 	}
-	
+
 	class WeekColumn extends BasicColumn {
 		List<Block> blockList = new ArrayList<>();
 
@@ -147,7 +148,7 @@ public class SemesterSchedule implements IsWidget {
 
 	class ClassColumn extends BasicColumn {
 		ClassColumn() {
-			setMargins(5);
+			setMargins(gap);
 
 			for (int g = 1; g <= Util.MAX_GRADE; g++) {
 				for (int s = 1; s <= Util.MAX_SERIAL; s++) {
@@ -159,7 +160,7 @@ public class SemesterSchedule implements IsWidget {
 
 	class BasicColumn extends VerticalLayoutLayer {
 		BasicColumn() {
-			setGap(5);
+			setGap(gap);
 		}
 
 		void addText(TextButton tb) {
