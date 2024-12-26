@@ -63,11 +63,11 @@ public class SyncScrollContainer extends ResizeContainer {
 		right.add(upRight, vld);
 		right.add(main, v1x1);
 
-		upRight.setScrollMode(ScrollMode.AUTO);
+		upRight.setScrollMode(ScrollMode.NONE);
 		upRight.add(hScrollWidget);
 		upRight.addScrollHandler(e -> syncPosition(upRight, main, true));
 
-		downLeft.setScrollMode(ScrollMode.AUTO);
+		downLeft.setScrollMode(ScrollMode.NONE);
 		downLeft.add(vScrollWidget);
 		downLeft.addScrollHandler(e -> syncPosition(downLeft, main, false));
 
@@ -77,6 +77,29 @@ public class SyncScrollContainer extends ResizeContainer {
 			syncPosition(main, upRight, true);
 			syncPosition(main, downLeft, false);
 		});
+	}
+
+	public void setHPosition(int x) {
+		main.getScrollSupport().setHorizontalScrollPosition(x);
+	}
+
+	/**
+	 * 設定 <code>hScroll</code> 的 {@link ScrollMode}，預設是 {@link ScrollMode#NONE}
+	 */
+	//備註：main 不給設定、始終保持 AUTO 應該是比較合理的作法。
+	public void setHScrollMode(ScrollMode mode) {
+		upRight.setScrollMode(mode);
+	}
+
+	public void setVPosition(int y) {
+		main.getScrollSupport().setVerticalScrollPosition(y);
+	}
+
+	/**
+	 * 設定 <code>vScroll</code> 的 {@link ScrollMode}，預設是 {@link ScrollMode#NONE}
+	 */
+	public void setVScrollMode(ScrollMode mode) {
+		downLeft.setScrollMode(mode);
 	}
 
 	@Override
