@@ -42,6 +42,7 @@ public class DataCenter {
 
 	// ==== 原始資料區 ==== //
 	private static UserData userData;
+	public static YS nowYS;
 	public static List<WeekSchedule> weekScheduleList;
 	public static List<Record> recordList;
 	// ======== //
@@ -75,9 +76,10 @@ public class DataCenter {
 	 * 索取一學期的完整資料（含 {@link WeekSchedule} 與 {@link Record}）
 	 */
 	public static void wantYS(YS ys) {
+		nowYS = ys;
 		TaskSet ts = new TaskSet();
 		ts.addAsyncTask(
-			() -> wantSchedule(SheetIdDao.priorityValue(), ys),
+			() -> wantSchedule(ys),
 			addScheduleReady(e -> ts.check())
 		).addAsyncTask(
 			() -> wantRecord(),
@@ -91,10 +93,9 @@ public class DataCenter {
 		eventBus.fireEvent(new InitFinishEvent());
 	}
 
-	//TODO 拿掉 sheetId
-	public static void wantSchedule(String sheetId, YS ys) {
+	public static void wantSchedule(YS ys) {
 		new SheetDto<WeekSchedule>().key(ApiKey.jsValue())
-				.sheetId(sheetId).tabName(Util.toString(ys))
+				.sheetId(SheetIdDao.priorityValue()).tabName(Util.toString(ys))
 				.fetch(
 			new Callback<WeekSchedule>() {
 				@Override
