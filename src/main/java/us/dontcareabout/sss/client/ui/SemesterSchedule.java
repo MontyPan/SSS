@@ -6,10 +6,10 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
+import com.sencha.gxt.chart.client.draw.Color;
 import com.sencha.gxt.chart.client.draw.RGB;
 import com.sencha.gxt.chart.client.draw.sprite.RectangleSprite;
 import com.sencha.gxt.core.client.util.Margins;
-import com.sencha.gxt.widget.core.client.container.SimpleContainer;
 
 import us.dontcareabout.gxt.client.draw.LRectangleSprite;
 import us.dontcareabout.gxt.client.draw.LayerContainer;
@@ -20,6 +20,13 @@ import us.dontcareabout.sss.client.Util;
 import us.dontcareabout.sss.client.data.DataCenter;
 import us.dontcareabout.sss.client.gf.SyncScrollContainer;
 import us.dontcareabout.sss.client.gf.SyncScrollContainer.Builder;
+import us.dontcareabout.sss.client.ui.SemesterSchedule.BasicColumn;
+import us.dontcareabout.sss.client.ui.SemesterSchedule.ClassColumn;
+import us.dontcareabout.sss.client.ui.SemesterSchedule.ClassLayer;
+import us.dontcareabout.sss.client.ui.SemesterSchedule.DateLayer;
+import us.dontcareabout.sss.client.ui.SemesterSchedule.MainLayer;
+import us.dontcareabout.sss.client.ui.SemesterSchedule.SemesterBtn;
+import us.dontcareabout.sss.client.ui.SemesterSchedule.WeekColumn;
 import us.dontcareabout.sss.client.vo.WeekSchedule;
 
 public class SemesterSchedule implements IsWidget {
@@ -27,15 +34,17 @@ public class SemesterSchedule implements IsWidget {
 	private static final int fixW = 72;
 	private static final int blockW = 100;
 	private static final int gap = 6;
+	private static final Color bgColor = new RGB(235, 240, 235);
 
 	private SyncScrollContainer instance;
 	private MainLayer mainLayer = new MainLayer();
+	private SemesterBtn semesterBtn = new SemesterBtn();
 	private DateLayer dateLayer = new DateLayer();
 	private ClassLayer classLayer = new ClassLayer();
 
 	public SemesterSchedule() {
 		instance = new Builder().fixSize(fixW, rowHeight)
-			.fixWidget(new SimpleContainer())
+			.fixWidget(semesterBtn)
 			.mainWidget(mainLayer)
 			.hScrollWidget(dateLayer)
 			.vScrollWidget(classLayer)
@@ -50,6 +59,7 @@ public class SemesterSchedule implements IsWidget {
 
 	private void refresh() {
 		mainLayer.refresh();
+		semesterBtn.refresh();
 		dateLayer.refresh();
 		classLayer.refresh();
 
@@ -76,7 +86,7 @@ public class SemesterSchedule implements IsWidget {
 			root.setLZIndex(100);
 			addLayer(root);
 
-			progress.setFill(new RGB(235, 240, 235));
+			progress.setFill(bgColor);
 			addSprite(progress);
 
 			UiCenter.addChangeName(e -> {
@@ -104,6 +114,25 @@ public class SemesterSchedule implements IsWidget {
 			//weekClmn 沒有算到 root 的 margin
 			setPixelSize((int)root.getViewSize(), (int)weekClmn.get(0).getViewSize() + gap);
 			progress.setHeight(getOffsetHeight());
+		}
+	}
+
+	class SemesterBtn extends LayerContainer {
+		TextButton btn = new TextButton();
+
+		SemesterBtn() {
+			btn.setBgColor(bgColor);
+			addLayer(btn);
+		}
+
+		void refresh() {
+			btn.setText(Util.toString(DataCenter.nowYS));
+			redrawSurface();
+		}
+
+		@Override
+		protected void adjustMember(int width, int height) {
+			btn.resize(width, height);
 		}
 	}
 
