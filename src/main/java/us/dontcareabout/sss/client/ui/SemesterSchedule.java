@@ -20,13 +20,6 @@ import us.dontcareabout.sss.client.Util;
 import us.dontcareabout.sss.client.data.DataCenter;
 import us.dontcareabout.sss.client.gf.SyncScrollContainer;
 import us.dontcareabout.sss.client.gf.SyncScrollContainer.Builder;
-import us.dontcareabout.sss.client.ui.SemesterSchedule.BasicColumn;
-import us.dontcareabout.sss.client.ui.SemesterSchedule.ClassColumn;
-import us.dontcareabout.sss.client.ui.SemesterSchedule.ClassLayer;
-import us.dontcareabout.sss.client.ui.SemesterSchedule.DateLayer;
-import us.dontcareabout.sss.client.ui.SemesterSchedule.MainLayer;
-import us.dontcareabout.sss.client.ui.SemesterSchedule.SemesterBtn;
-import us.dontcareabout.sss.client.ui.SemesterSchedule.WeekColumn;
 import us.dontcareabout.sss.client.vo.WeekSchedule;
 
 public class SemesterSchedule implements IsWidget {
@@ -73,6 +66,7 @@ public class SemesterSchedule implements IsWidget {
 
 		instance.setHPosition(x);
 		mainLayer.setProgress(x);
+		dateLayer.setProgress(x);
 	}
 
 	class MainLayer extends LayerContainer {
@@ -137,12 +131,22 @@ public class SemesterSchedule implements IsWidget {
 	}
 
 	class DateLayer extends LayerContainer {
+		RectangleSprite progress = new RectangleSprite();
 		HorizontalLayoutLayer root = new HorizontalLayoutLayer();
 
 		public DateLayer() {
 			root.setMargins(new Margins(0, gap, 0, gap));
 			root.setGap(gap);
+			root.setLZIndex(100);
 			addLayer(root);
+
+			progress.setFill(bgColor);
+			addSprite(progress);
+		}
+
+		void setProgress(int width) {
+			progress.setWidth(width + gap / 2);
+			redrawSurface();
 		}
 
 		void refresh() {
@@ -157,6 +161,7 @@ public class SemesterSchedule implements IsWidget {
 			root.redeploy();
 			root.resize(1, rowHeight);
 			setPixelSize((int)root.getViewSize(), rowHeight);
+			progress.setHeight(getOffsetHeight());
 		}
 	}
 
