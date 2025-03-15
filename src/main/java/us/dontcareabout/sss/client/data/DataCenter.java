@@ -3,8 +3,10 @@ package us.dontcareabout.sss.client.data;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.github.nmorel.gwtjackson.client.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -48,6 +50,10 @@ public class DataCenter {
 	// ======== //
 
 	// ==== 二級資料區 ==== //
+	/** 以學年為單位的進班主題分組 **/
+	//因為判斷學年要透過產生 YS 來比對，所以直接 cache 起來
+	public static HashMap<Integer, List<Record>> yearRecordMap;
+
 	/** 志工狀態 */
 	public static HashMap<String, Volunteer> volunteerMap;
 	// ======== //
@@ -90,6 +96,7 @@ public class DataCenter {
 
 	private static void wantYSReadyProcess() {
 		buildVolunteerMap();
+		buildYearRecordMap();
 		eventBus.fireEvent(new InitFinishEvent());
 	}
 
@@ -144,6 +151,22 @@ public class DataCenter {
 
 	////////////////
 
+	private static void buildYearRecordMap() {
+		yearRecordMap = new HashMap<>();
+
+		for (Record r : recordList) {
+			YS ys = new YS(r.getDate());
+			List<Record> list = yearRecordMap.get(ys.year);
+
+			if (list == null) {
+				list = Lists.newArrayList();
+				yearRecordMap.put(ys.year, list);
+			}
+
+			list.add(r);
+		}
+	}
+
 	private static void buildVolunteerMap() {
 		volunteerMap = new HashMap<>();
 
@@ -168,6 +191,14 @@ public class DataCenter {
 	}
 
 	////////////////
+
+	public static List<Record> getClassTopic(int year, int grade, int serial) {
+		return yearRecordMap.get(year).stream()
+			.filter(r -> r.getGrade() == grade && r.getSerial() == serial)
+			//日期晚的擺在前面
+			.sorted((r1, r2) -> r2.getDate().compareTo(r1.getDate()))
+			.collect(Collectors.toList());
+	}
 
 	public static String findTopic(Date date, int g, int s) {
 		String result = "";
