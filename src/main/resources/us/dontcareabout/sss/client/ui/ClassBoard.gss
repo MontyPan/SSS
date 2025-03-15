@@ -1,0 +1,28 @@
+.title {
+	font-size: 18px;
+	margin: 5px;
+}
+
+.normal {
+	font-size: 18px;
+	line-height: 1.4;
+}
+
+.table {
+	margin:0 0 0 8px; 
+	border-collapse:collapse;
+}
+
+.tr {
+	border-bottom: 1px solid #161616;
+}
+.date {
+	width:48px;
+	text-align: center;
+	vertical-align: top;
+	padding: 6px 0 0 0;
+}
+
+.topic {
+	padding: 6px 0 0 5px;
+}

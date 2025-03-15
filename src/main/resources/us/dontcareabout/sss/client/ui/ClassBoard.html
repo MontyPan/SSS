@@ -1,0 +1,22 @@
+<div class="{style.title}">{grade}-{serial} 歷代主題：</div>
+<div class="{style.normal}">
+<table class="{style.table}">
+	<tpl for="list1"><tr class="{style.tr}">
+		<td class="{style.date}">{date:date("MM/dd")}</td>
+		<td class="{style.topic}">{topic}</td>
+	</tr></tpl>
+</table>
+</div>
+
+<tpl if="grade == 2">
+<br/>
+<div class="{style.title}">{[grade - 1]}-{serial} 歷代主題：</div>
+<div class="{style.normal}">
+<table class="{style.table}">
+	<tpl for="list2"><tr class="{style.tr}">
+		<td class="{style.date}">{date:date("MM/dd")}</td>
+		<td class="{style.topic}">{topic}</td>
+	</tr></tpl>
+</table>
+</div>
+</tpl>
