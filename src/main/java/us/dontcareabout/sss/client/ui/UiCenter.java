@@ -18,6 +18,7 @@ public class UiCenter {
 	private final static SimpleEventBus eventBus = new SimpleEventBus();
 
 	private static AnnounceBoard announcePad = new AnnounceBoard();
+	private static ClassBoard classPad = new ClassBoard();
 	private static VolunteerBoard volunteerPad = new VolunteerBoard();
 
 	public static void changeName(String name) {
@@ -49,5 +50,10 @@ public class UiCenter {
 	public static void showVolunteer(WeekSchedule data, int g, int s) {
 		volunteerPad.refresh(data, g, s);
 		PopUtil.showDialog(volunteerPad);
+	}
+
+	public static void showClass(int g, int s) {
+		classPad.refresh(g, s);
+		PopUtil.showDialog(classPad);
 	}
 }
