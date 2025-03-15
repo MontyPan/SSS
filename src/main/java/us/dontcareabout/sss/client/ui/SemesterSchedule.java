@@ -212,9 +212,16 @@ public class SemesterSchedule implements IsWidget {
 
 			for (int g = 1; g <= Util.MAX_GRADE; g++) {
 				for (int s = 1; s <= Util.MAX_SERIAL; s++) {
-					addText(new TextButton(Util.className(g, s)));
+					addText(new ClassBtn(g, s));
 				}
 			}
+		}
+	}
+
+	class ClassBtn extends TextButton {
+		ClassBtn(int g, int s) {
+			super(Util.className(g, s));
+			addSpriteSelectionHandler(e -> UiCenter.showClass(g, s));
 		}
 	}
 
